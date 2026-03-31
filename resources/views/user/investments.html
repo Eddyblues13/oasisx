@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT">
+    <title>Oasisxmarket</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#171717', // Neutral-900 (Black-ish)
+                        secondary: '#64748b',
+                        dark: '#000000',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+        }
+
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('customSelect', (config = {}) => ({
+                open: false,
+                search: '',
+                options: [],
+                selected: null,
+                placeholder: config.placeholder || 'Select an option',
+                searchable: config.searchable || false,
+                init() {
+                    const select = this.$refs.select;
+                    this.options = Array.from(select.options).map(option => ({
+                        value: option.value,
+                        label: option.text,
+                        disabled: option.disabled,
+                        selected: option.selected
+                    }));
+                    const selectedOption = this.options.find(o => o.selected) || this.options[0];
+                    if (selectedOption) {
+                        this.selected = selectedOption.value;
+                    }
+                },
+                get selectedLabel() {
+                    const selectedOption = this.options.find(o => o.value === this.selected);
+                    return selectedOption ? selectedOption.label : this.placeholder;
+                },
+                filteredOptions() {
+                    if (!this.searchable || !this.search) {
+                        return this.options;
+                    }
+                    const term = this.search.toLowerCase();
+                    return this.options.filter(o => o.label.toLowerCase().includes(term));
+                },
+                selectOption(value) {
+                    this.selected = value;
+                    const select = this.$refs.select;
+                    select.value = value;
+                    select.dispatchEvent(new Event('change'));
+                    this.open = false;
+                }
+            }));
+        });
+    </script>
+
+    <body class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white antialiased">
+        <!-- Preloader -->
+        <div id="preloader" class="fixed inset-0 z-[100] bg-white dark:bg-black flex items-center justify-center transition-opacity duration-500">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mb-4"></div>
+                <div class="text-sm font-medium text-gray-900 dark:text-white animate-pulse">Loading...</div>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('load', function() {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('opacity-0');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            });
+        </script>
+
+
+        <div class="min-h-screen flex flex-col">
+            <!-- Navigation -->
+            <nav class="glass sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex">
+                            <div class="shrink-0 flex items-center">
+                                <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="font-bold text-2xl text-primary tracking-tight">
+                                <span class="text-gray-900 dark:text-white">Oasisxmarket</span>
+                            </a>
+                            </div>
+                            <div class="hidden md:ml-8 md:flex md:space-x-8">
+                                <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Dashboard</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/wallet" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Wallet</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/investments" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-black text-black dark:border-white dark:text-white">Invest</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/profile" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Profile</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="ml-3 relative flex items-center gap-4">
+                                <!-- Balance Pill -->
+                                <div class="hidden md:flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-sm font-bold text-green-700 dark:text-green-400">
+                                    $9,059.50
+                                </span>
+                                </div>
+
+                                <form action="https://Oasisxmarket.codeweblink.top/dark-mode" method="POST">
+                                    <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="submit" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                                                            </button>
+                                </form>
+
+                                <!-- User Menu -->
+                                <div class="relative ml-3 flex items-center gap-3">
+                                    <div class="hidden md:block text-right">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Ashley</div>
+                                    </div>
+                                    <form method="POST" action="https://Oasisxmarket.codeweblink.top/logout">
+                                        <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="submit" class="text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                    </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </nav>
+
+            <!-- Mobile Bottom Nav -->
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 z-50 pb-safe">
+                <div class="flex justify-around items-center p-1">
+                    <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-xs font-medium">Home</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/wallet" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <span class="text-xs font-medium">Wallet</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/investments" class="flex flex-col items-center p-2 rounded-lg text-black dark:text-white">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    <span class="text-xs font-medium">Invest</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/profile" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </a>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <main class="flex-1">
+                <div class="max-w-7xl mx-auto py-6 px-4 pb-24 md:pb-6 sm:px-6 lg:px-8">
+
+                    <div class="space-y-8 pb-20">
+                        <!-- Header -->
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Investment Plans</h2>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Grow your wealth with our tailored investment packages.</p>
+                        </div>
+
+                        <!-- Crypto Ticker Widget -->
+                        <div class="w-full mb-8 overflow-hidden rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                                    {
+                                        "symbols": [{
+                                                "proName": "BITSTAMP:BTCUSD",
+                                                "title": "Bitcoin"
+                                            },
+                                            {
+                                                "proName": "BITSTAMP:ETHUSD",
+                                                "title": "Ethereum"
+                                            },
+                                            {
+                                                "description": "Tether",
+                                                "proName": "BINANCE:USDTUSD"
+                                            },
+                                            {
+                                                "description": "BNB",
+                                                "proName": "BINANCE:BNBUSD"
+                                            },
+                                            {
+                                                "description": "Solana",
+                                                "proName": "BINANCE:SOLUSD"
+                                            }
+                                        ],
+                                        "showSymbolLogo": true,
+                                        "isTransparent": true,
+                                        "displayMode": "adaptive",
+                                        "colorTheme": "light",
+                                        "locale": "en"
+                                    }
+                                </script>
+                            </div>
+                        </div>
+
+                        <!-- Available Plans -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Basic</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">1 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">3.00% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$10,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 3% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 1 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $10,300.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/1/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Basic</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$10,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">3.00% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">1 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Pro</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">3 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">6.50% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$20,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 6.5% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 3 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $21,300.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/2/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Pro</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$20,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">6.50% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">3 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Premium</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">6 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">8.00% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$40,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 8% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 6 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $43,200.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/3/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Premium</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$40,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">8.00% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">6 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Mater premium</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">12 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">15.00% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$70,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 15% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 12 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $80,500.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/4/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Mater premium</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$70,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">15.00% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">12 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Crypto pro</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">14 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">17.50% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$150,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 17.5% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 14 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $176,250.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/5/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Crypto pro</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$150,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">17.50% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">14 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative group bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-black dark:hover:border-white transition-all duration-300">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Crypto premium</h3>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">17 Days Lock-in</p>
+                                        </div>
+                                        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                                            <span class="text-sm font-bold text-black dark:text-white">19.70% ROI</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white">$220,000.00</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Investment Amount</p>
+                                    </div>
+
+                                    <div class="mt-4 space-y-2">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">Get 19.7% on this investment</p>
+                                        <div class="px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Estimated payout after 17 days</p>
+                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                $263,340.00
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6" x-data="{ open: false }">
+                                        <form x-ref="investForm" action="https://Oasisxmarket.codeweblink.top/investments/6/invest" method="POST">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="button" @click="open = true" class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg">
+                            Invest Now
+                        </button>
+                                        </form>
+
+                                        <div x-show="open" x-cloak class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-60">
+                                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-800">
+                                                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Confirm Investment</h3>
+                                                    <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" @click="open = false">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                                </div>
+                                                <div class="px-5 py-4 space-y-2">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                                                        You are about to invest in the <span class="font-semibold">Crypto premium</span> plan.
+                                                    </p>
+                                                    <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                                        <li>Amount: <span class="font-semibold text-gray-900 dark:text-white">$220,000.00</span></li>
+                                                        <li>Return: <span class="font-semibold text-gray-900 dark:text-white">19.70% ROI</span></li>
+                                                        <li>Duration: <span class="font-semibold text-gray-900 dark:text-white">17 days</span></li>
+                                                    </ul>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Make sure your wallet has enough balance. Once confirmed, this amount will be locked until the plan completes.
+                                                    </p>
+                                                </div>
+                                                <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3">
+                                                    <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800" @click="open = false">
+                                    Cancel
+                                </button>
+                                                    <button type="button" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" @click="$refs.investForm.submit()">
+                                    Confirm Investment
+                                </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- My Investments -->
+                        <div class="mt-12">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">My Portfolio</h3>
+
+                            <div class="bg-white dark:bg-gray-900 shadow-xl rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                                        <thead class="bg-gray-50 dark:bg-gray-800/50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Plan</th>
+                                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Start Date</th>
+                                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">End Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Mater premium</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">15.00% ROI</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                    $70,000.00
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-black text-white dark:bg-white dark:text-black">
+                                        Active
+                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Mar 25, 2026
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Apr 06, 2026
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Basic</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">3.00% ROI</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                    $10,000.00
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                        Completed
+                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Mar 03, 2026
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Mar 04, 2026
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Basic</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">3.00% ROI</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                    $10,000.00
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                        Completed
+                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Feb 22, 2026
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Feb 23, 2026
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Basic</div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">3.00% ROI</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                    $100.00
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                        Completed
+                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Feb 05, 2026
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                    Feb 06, 2026
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+
+</html>

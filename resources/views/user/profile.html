@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT">
+    <title>Oasisxmarket</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#171717', // Neutral-900 (Black-ish)
+                        secondary: '#64748b',
+                        dark: '#000000',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+        }
+
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('customSelect', (config = {}) => ({
+                open: false,
+                search: '',
+                options: [],
+                selected: null,
+                placeholder: config.placeholder || 'Select an option',
+                searchable: config.searchable || false,
+                init() {
+                    const select = this.$refs.select;
+                    this.options = Array.from(select.options).map(option => ({
+                        value: option.value,
+                        label: option.text,
+                        disabled: option.disabled,
+                        selected: option.selected
+                    }));
+                    const selectedOption = this.options.find(o => o.selected) || this.options[0];
+                    if (selectedOption) {
+                        this.selected = selectedOption.value;
+                    }
+                },
+                get selectedLabel() {
+                    const selectedOption = this.options.find(o => o.value === this.selected);
+                    return selectedOption ? selectedOption.label : this.placeholder;
+                },
+                filteredOptions() {
+                    if (!this.searchable || !this.search) {
+                        return this.options;
+                    }
+                    const term = this.search.toLowerCase();
+                    return this.options.filter(o => o.label.toLowerCase().includes(term));
+                },
+                selectOption(value) {
+                    this.selected = value;
+                    const select = this.$refs.select;
+                    select.value = value;
+                    select.dispatchEvent(new Event('change'));
+                    this.open = false;
+                }
+            }));
+        });
+    </script>
+
+    <body class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white antialiased">
+        <!-- Preloader -->
+        <div id="preloader" class="fixed inset-0 z-[100] bg-white dark:bg-black flex items-center justify-center transition-opacity duration-500">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mb-4"></div>
+                <div class="text-sm font-medium text-gray-900 dark:text-white animate-pulse">Loading...</div>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('load', function() {
+                const preloader = document.getElementById('preloader');
+                preloader.classList.add('opacity-0');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            });
+        </script>
+
+
+        <div class="min-h-screen flex flex-col">
+            <!-- Navigation -->
+            <nav class="glass sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex">
+                            <div class="shrink-0 flex items-center">
+                                <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="font-bold text-2xl text-primary tracking-tight">
+                                <span class="text-gray-900 dark:text-white">Oasisxmarket</span>
+                            </a>
+                            </div>
+                            <div class="hidden md:ml-8 md:flex md:space-x-8">
+                                <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Dashboard</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/wallet" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Wallet</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/investments" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200">Invest</a>
+                                <a href="https://Oasisxmarket.codeweblink.top/profile" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium border-black text-black dark:border-white dark:text-white">Profile</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="ml-3 relative flex items-center gap-4">
+                                <!-- Balance Pill -->
+                                <div class="hidden md:flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-sm font-bold text-green-700 dark:text-green-400">
+                                    $9,059.50
+                                </span>
+                                </div>
+
+                                <form action="https://Oasisxmarket.codeweblink.top/dark-mode" method="POST">
+                                    <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="submit" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
+                                                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                                                            </button>
+                                </form>
+
+                                <!-- User Menu -->
+                                <div class="relative ml-3 flex items-center gap-3">
+                                    <div class="hidden md:block text-right">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Ashley</div>
+                                    </div>
+                                    <form method="POST" action="https://Oasisxmarket.codeweblink.top/logout">
+                                        <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off"> <button type="submit" class="text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                    </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </nav>
+
+            <!-- Mobile Bottom Nav -->
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 z-50 pb-safe">
+                <div class="flex justify-around items-center p-1">
+                    <a href="https://Oasisxmarket.codeweblink.top/dashboard" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="text-xs font-medium">Home</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/wallet" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <span class="text-xs font-medium">Wallet</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/investments" class="flex flex-col items-center p-2 rounded-lg text-gray-500 dark:text-gray-400">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    <span class="text-xs font-medium">Invest</span>
+                </a>
+                    <a href="https://Oasisxmarket.codeweblink.top/profile" class="flex flex-col items-center p-2 rounded-lg text-black dark:text-white">
+                    <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </a>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <main class="flex-1">
+                <div class="max-w-7xl mx-auto py-6 px-4 pb-24 md:pb-6 sm:px-6 lg:px-8">
+
+                    <div class="space-y-6 pb-20 sm:pb-0">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Manage your account information and preferences.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Profile Card -->
+                            <div class="lg:col-span-1">
+                                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden text-center p-6">
+                                    <div class="relative inline-block mb-4">
+                                        <img id="profile-preview" class="h-32 w-32 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg mx-auto" src="/storage-file/avatars/jocIlgV7jnhIjrrzBVRm8sv4lrZbTK1cmtfKpBOH.jpg" alt="Ashley">
+                                        <div class="absolute bottom-1 right-1 bg-black dark:bg-white w-5 h-5 rounded-full border-2 border-white dark:border-gray-800" title="Online"></div>
+                                    </div>
+
+                                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Ashley</h2>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">user@mail.com</p>
+
+                                    <div class="flex flex-wrap justify-center gap-2 mb-6">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                            Prime
+                        </span>
+                                    </div>
+
+                                    <div class="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-3">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-xs text-gray-500 uppercase tracking-wide">Joined</p>
+                                                <p class="font-medium text-gray-900 dark:text-white">Feb 2026</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+                                                <span class="text-black dark:text-white font-medium text-sm flex items-center justify-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-black dark:bg-white"></span> Active
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs text-gray-500 uppercase tracking-wide">KYC Status</p>
+                                                <span class="text-red-600 dark:text-red-400 font-medium text-sm">Not Verified</span>
+                                            </div>
+                                            <a href="https://Oasisxmarket.codeweblink.top/profile/kyc" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                Complete KYC
+                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <a href="https://Oasisxmarket.codeweblink.top/contact" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black dark:focus:ring-white transition-colors">
+                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Contact Support
+                    </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit Profile Form -->
+                            <div class="lg:col-span-2">
+                                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                                    <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Referral Program</h3>
+                                    </div>
+                                    <div class="p-6">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Referrals</p>
+                                                <p class="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                                            </div>
+                                            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Referral Earnings</p>
+                                                <p class="text-2xl font-bold text-gray-900 dark:text-white">$0.00</p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Referral Link</label>
+                                            <div class="flex rounded-md shadow-sm">
+                                                <input type="text" readonly value="https://Oasisxmarket.codeweblink.top/register?ref=BNPSf4eM" class="focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white flex-1 block w-full rounded-none rounded-l-lg sm:text-sm border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2.5">
+                                                <button type="button" onclick="navigator.clipboard.writeText('https://Oasisxmarket.codeweblink.top/register?ref=BNPSf4eM'); alert('Link copied!');" class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-r-lg text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copy</span>
+                            </button>
+                                            </div>
+                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Share this link to earn bonuses from your referrals' deposits.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                                    <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Information</h3>
+                                    </div>
+                                    <div class="p-6">
+                                        <form action="https://Oasisxmarket.codeweblink.top/profile" method="POST" enctype="multipart/form-data" class="space-y-6">
+                                            <input type="hidden" name="_token" value="s2aRXWGLEghTHZ07U91R6i3R4FKeYb2A2mXQ2AuT" autocomplete="off">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</label>
+                                                <div class="flex items-center gap-4">
+                                                    <label class="cursor-pointer bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-black dark:focus-within:ring-white transition-colors shadow-sm">
+                                    <span>Change Photo</span>
+                                    <input type="file" name="avatar" class="sr-only" onchange="previewImage(this)">
+                                </label>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">JPG, GIF or PNG.</p>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                function previewImage(input) {
+                                                    if (input.files && input.files[0]) {
+                                                        var reader = new FileReader();
+                                                        reader.onload = function(e) {
+                                                            var preview = document.getElementById('profile-preview');
+                                                            var placeholder = document.getElementById('profile-placeholder');
+
+                                                            preview.src = e.target.result;
+                                                            preview.classList.remove('hidden');
+                                                            if (placeholder) placeholder.classList.add('hidden');
+                                                        }
+                                                        reader.readAsDataURL(input.files[0]);
+                                                    }
+                                                }
+                                            </script>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                                                    <input type="text" name="name" id="name" value="Ashley" required class="focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white block w-full sm:text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2.5 shadow-sm">
+                                                </div>
+
+                                                <div>
+                                                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                                                    <input type="email" name="email" id="email" value="user@mail.com" disabled class="block w-full sm:text-sm border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-500 cursor-not-allowed py-2.5 shadow-sm">
+                                                    <p class="mt-1 text-xs text-gray-500">Contact support to change email.</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-4 flex justify-end">
+                                                <button type="submit" class="inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                Save Changes
+                            </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Security/Password Section (Placeholder for future) -->
+                                <div class="mt-6 bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden opacity-75">
+                                    <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Security</h3>
+                                        <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">Coming Soon</span>
+                                    </div>
+                                    <div class="p-6">
+                                        <div class="space-y-4">
+                                            <div class="flex items-center justify-between py-2">
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Password</h4>
+                                                    <p class="text-xs text-gray-500">Last changed 3 months ago</p>
+                                                </div>
+                                                <button disabled class="text-sm text-gray-400 cursor-not-allowed font-medium">Update</button>
+                                            </div>
+                                            <div class="flex items-center justify-between py-2">
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h4>
+                                                    <p class="text-xs text-gray-500">Add an extra layer of security</p>
+                                                </div>
+                                                <button disabled class="text-sm text-gray-400 cursor-not-allowed font-medium">Enable</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+
+</html>
