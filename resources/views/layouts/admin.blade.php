@@ -62,6 +62,53 @@
             html {
                 font-size: 17px;
             }
+
+            /* Mobile-friendly tables: convert to stacked card layout */
+            .mobile-cards thead {
+                display: none;
+            }
+
+            .mobile-cards tbody tr {
+                display: block;
+                padding: 1rem;
+                border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+            }
+
+            .mobile-cards tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-cards tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.35rem 0;
+                border: none;
+                font-size: 0.875rem;
+            }
+
+            .mobile-cards tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #6b7280;
+                margin-right: 1rem;
+                flex-shrink: 0;
+            }
+
+            .dark .mobile-cards tbody td::before {
+                color: #9ca3af;
+            }
+
+            .mobile-cards tbody td:first-child {
+                padding-top: 0;
+            }
+
+            .mobile-cards tbody td:last-child {
+                padding-bottom: 0;
+            }
         }
     </style>
 
@@ -126,6 +173,24 @@
     </div>
 
     @stack('scripts')
+
+    <script>
+        /* ── AUTO MOBILE TABLE CARDS ── */
+        document.querySelectorAll('table').forEach(table => {
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            if (headers.length) {
+                table.classList.add('mobile-cards');
+                table.querySelectorAll('tbody tr').forEach(tr => {
+                    tr.querySelectorAll('td').forEach((td, i) => {
+                        if (headers[i]) td.setAttribute('data-label', headers[i]);
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
