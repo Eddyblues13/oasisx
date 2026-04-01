@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
-<script>if(localStorage.getItem('theme')!=='light'){document.documentElement.classList.add('dark')}</script>
+<script>
+    if(localStorage.getItem('theme')!=='light'){document.documentElement.classList.add('dark')}
+</script>
 
 <head>
     <meta charset="utf-8">
@@ -53,6 +55,13 @@
 
         [x-cloak] {
             display: none !important;
+        }
+
+        /* ─── MOBILE SIZE BOOST ─── */
+        @media (max-width: 640px) {
+            html {
+                font-size: 17px;
+            }
         }
     </style>
 

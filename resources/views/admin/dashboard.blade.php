@@ -7,15 +7,17 @@
 <div class="space-y-6">
     {{-- Welcome --}}
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome back, {{ Auth::guard('admin')->user()->name
+        <h1 class="text-2xl sm:text-2xl text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {{
+            Auth::guard('admin')->user()->name
             }}</h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Here's an overview of your platform.</p>
+        <p class="text-gray-500 dark:text-gray-400 text-base sm:text-sm">Here's an overview of your platform.</p>
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
                 <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -25,12 +27,13 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $totalUsers }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ $totalUsers }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
                 <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -40,12 +43,14 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">${{ number_format($totalDeposits, 2) }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">${{
+                number_format($totalDeposits, 2) }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">Total Deposits</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
                 <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -54,12 +59,13 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">0</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">0</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">Active Investments</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
                 <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -69,7 +75,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ $pendingDeposits }}</p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ $pendingDeposits }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">Pending Deposits</p>
         </div>
     </div>
