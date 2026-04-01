@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Loan #{{ $loan->id }}</h1>
             <p class="text-gray-500 dark:text-gray-400 text-sm">Submitted {{ $loan->created_at->format('M d, Y H:i') }}

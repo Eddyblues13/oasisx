@@ -19,7 +19,8 @@
         {{-- Deposit Info --}}
         <div
             class="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div
+                class="p-6 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">Deposit #{{ $deposit->id }}</h2>
                 @if($deposit->status === 'pending')
                 <span

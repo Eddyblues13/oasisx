@@ -1,8 +1,7 @@
 {{-- Admin Sidebar --}}
 <aside x-data="{ open: false }"
     class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform transition-transform duration-200 ease-in-out md:translate-x-0"
-    :class="open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" @sidebar-toggle.window="open = !open"
-    @click.away="open = false">
+    :class="open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" @sidebar-toggle.window="open = !open">
 
     {{-- Logo --}}
     <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-800">
@@ -230,7 +229,6 @@
 </aside>
 
 {{-- Sidebar Overlay (mobile) --}}
-<div x-data x-show="false" x-cloak
-    @sidebar-toggle.window="$el.style.display = ($el.style.display === 'none') ? 'block' : 'none'"
+<div x-data="{ open: false }" x-show="open" x-cloak x-transition.opacity @sidebar-toggle.window="open = !open"
     class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" @click="$dispatch('sidebar-toggle')">
 </div>
