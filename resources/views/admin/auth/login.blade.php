@@ -39,8 +39,13 @@
 
                     {{-- Password --}}
                     <div x-data="{ show: false }">
-                        <label for="password"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="password"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                            <a href="{{ route('admin.password.request') }}"
+                                class="text-xs font-medium text-gray-900 dark:text-white hover:underline">Forgot
+                                password?</a>
+                        </div>
                         <div class="relative">
                             <input id="password" name="password" :type="show ? 'text' : 'password'"
                                 autocomplete="current-password" required
